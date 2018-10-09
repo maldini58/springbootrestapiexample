@@ -15,33 +15,38 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.letsstartcoding.springbootrestapiexample.dao.EmployeeDAO;
 import com.letsstartcoding.springbootrestapiexample.model.Employee;
+import com.letsstartcoding.springbootrestapiexample.serwis.EmployeeSerwis;
 
 @RestController
 @RequestMapping("/company")
 public class EmployeeController {
 	
+	
+	EmployeeSerwis employeeSerwis;
+	
 	@Autowired
-	EmployeeDAO employeeDAO;
+	public EmployeeController(EmployeeSerwis employeeSerwis) {
+		this.employeeSerwis=employeeSerwis;
+	}
 	
 	/* to save an employee*/
 	@PostMapping("/employees")
 	public Employee createEmployee(@Valid @RequestBody Employee emp) {
-		return employeeDAO.save(emp);
+		return employeeSerwis.save(emp);
 	}
 	
 	/*get all employees*/
 	@GetMapping("/employees")
 	public List<Employee> getAllEmployees(){
-		return employeeDAO.findAll();
+		return employeeSerwis.findAll();
 	}
 	
 	/*get employee by empid*/
 	@GetMapping("/employees/{id}")
 	public ResponseEntity<Employee> getEmployeeById(@PathVariable(value="id") Long empid){
 		
-		Employee emp=employeeDAO.findOne(empid);
+		Employee emp=employeeSerwis.findOne(empid);
 		
 		if(emp==null) {
 			return ResponseEntity.notFound().build();
@@ -55,16 +60,13 @@ public class EmployeeController {
 	@PutMapping("/employees/{id}")
 	public ResponseEntity<Employee> updateEmployee(@PathVariable(value="id") Long empid,@Valid @RequestBody Employee empDetails){
 		
-		Employee emp=employeeDAO.findOne(empid);
-		if(emp==null) {
-			return ResponseEntity.notFound().build();
-		}
+		Employee emp=employeeSerwis.findOne(empid);
 		
 		emp.setName(empDetails.getName());
 		emp.setDesignation(empDetails.getDesignation());
 		emp.setExpertise(empDetails.getExpertise());
 		
-		Employee updateEmployee=employeeDAO.save(emp);
+		Employee updateEmployee=employeeSerwis.save(emp);
 		return ResponseEntity.ok().body(updateEmployee);
 		
 		
@@ -75,11 +77,8 @@ public class EmployeeController {
 	@DeleteMapping("/employees/{id}")
 	public ResponseEntity<Employee> deleteEmployee(@PathVariable(value="id") Long empid){
 		
-		Employee emp=employeeDAO.findOne(empid);
-		if(emp==null) {
-			return ResponseEntity.notFound().build();
-		}
-		employeeDAO.delete(emp);
+		Employee emp=employeeSerwis.findOne(empid);
+		employeeSerwis.delete(emp);
 		
 		return ResponseEntity.ok().build();
 		
